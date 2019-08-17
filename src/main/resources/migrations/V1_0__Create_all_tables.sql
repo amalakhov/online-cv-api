@@ -17,7 +17,7 @@ CREATE TABLE "user" (
     last_name varchar(255),
     first_name varchar(255),
     middle_name varchar(255),
-    mobile_phone varchar(255) UNIQUE DEFAULT '',
+    email varchar(255) NOT NULL UNIQUE ,
     role_id integer REFERENCES user_role(id) NOT NULL,
     photo_id integer REFERENCES files(id),
     password_hash varchar(255) NOT NULL,

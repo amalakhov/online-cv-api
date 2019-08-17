@@ -145,3 +145,8 @@ gradle-app.setting
 **/build/
 
 # End of https://www.gitignore.io/api/git,java,gradle,intellij
+
+.DS_Store
+classes/
+buildSrc/
+src/main/java/com/online/cv/db/
