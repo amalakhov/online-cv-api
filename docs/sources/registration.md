@@ -35,12 +35,12 @@ This page explains how to create a new User.
 ### Success registration
 
 *Curl:*
-```
+```bash
 curl -v --url http://127.0.0.1:9080/api/user/registration --header 'content-type: application/json' --data '{"email": "foo@gmail.com", "firstName": "Alex", "password": "foo", "confirmPassword": "foo"}'
 ```
 
 *Response:*
-```
+```console
 *   Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to 127.0.0.1 (127.0.0.1) port 9080 (#0)
