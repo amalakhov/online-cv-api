@@ -2,6 +2,9 @@ package com.online.cv.context;
 
 import com.online.cv.context.security.JwtAuthenticationFilter;
 import com.online.cv.context.security.JwtAuthorizationFilter;
+import com.online.cv.resource.AuthenticationEntryPointHandler;
+import com.online.cv.resource.CustomAccessDeniedHandler;
+import com.online.cv.service.JsonMapperService;
 import com.online.cv.service.OnlineCvUserDetailsService;
 import com.online.cv.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -27,6 +32,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecurityProperties securityProperties;
+
+    @Autowired
+    private JsonMapperService jsonMapperService;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
@@ -45,8 +53,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/user//registration").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), securityProperties, getUserDetailsService()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), securityProperties, getUserDetailsService()));
+                .exceptionHandling()
+                    .accessDeniedHandler(accessDeniedHandler())
+                    .authenticationEntryPoint(authenticationEntryPoint())
+                .and()
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), securityProperties, getUserDetailsService(), jsonMapperService))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), securityProperties, getUserDetailsService(), jsonMapperService));
     }
 
     @Bean
@@ -62,6 +74,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(getUserDetailsService()).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        return new CustomAccessDeniedHandler(jsonMapperService);
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new AuthenticationEntryPointHandler(jsonMapperService);
     }
 
     @Bean

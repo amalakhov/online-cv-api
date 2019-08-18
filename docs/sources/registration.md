@@ -16,7 +16,19 @@ This page explains how to create a new User.
 	"firstName": "", 		// optional
 }
 ```
-- *Response code:* 200 - Ok, 400 - Failed
+- *Response code:* 200 - Ok, 4xx/5xx - Failed
+
+### Error codes
+| Error code  | Description |
+| ------------- | ------------- |
+| 100 | User with the specified email already exists |
+| 101 | Passwords don't match |
+| 102 | User with the specified email and password doesn't exist |
+| 103 | Request body is null |
+| 104 | Registration failed |
+| 105 | Token has been expired |
+| 106 | Access denied |
+| 107 | Full authentication is required |
 
 ## Examples
 
@@ -48,7 +60,7 @@ curl -v --url http://127.0.0.1:9080/api/user/registration --header 'content-type
 < Expires: 0
 < X-Frame-Options: DENY
 < Content-Length: 0
-< Date: Sat, 17 Aug 2019 14:32:20 GMT
+< Date: Sun, 18 Aug 2019 11:13:24 GMT
 <
 * Connection #0 to host 127.0.0.1 left intact
 ```
@@ -80,12 +92,12 @@ curl -v --url http://127.0.0.1:9080/api/user/registration --header 'content-type
 < Pragma: no-cache
 < Expires: 0
 < X-Frame-Options: DENY
-< Content-Type: text/plain;charset=UTF-8
-< Content-Length: 44
-< Date: Sat, 17 Aug 2019 14:33:51 GMT
+< Content-Type: application/json;charset=UTF-8
+< Transfer-Encoding: chunked
+< Date: Sun, 18 Aug 2019 11:13:56 GMT
 < Connection: close
 <
 * Closing connection 0
-User with the specified email already exists
+{"code":100,"description":"User with the specified email already exists"}
 ```
 

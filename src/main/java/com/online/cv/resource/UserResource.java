@@ -2,6 +2,7 @@ package com.online.cv.resource;
 
 import com.online.cv.domain.common.NewUserRequest;
 import com.online.cv.domain.common.UserDto;
+import com.online.cv.domain.error.ErrorCode;
 import com.online.cv.domain.exception.CreateUserException;
 import com.online.cv.service.UserService;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "/user/hey")
-    public ResponseEntity<String> heyMan(Principal principal) {
+    public ResponseEntity<String> hey(Principal principal) {
         final Optional<UserDto> optionalUser = userService.resolveUser(principal);
 
         if (optionalUser.isPresent()) {
@@ -43,16 +44,15 @@ public class UserResource {
     }
 
     @PostMapping(path = "/user/registration")
-    public ResponseEntity<String> createUser(@RequestBody NewUserRequest request) {
+    public ResponseEntity<ErrorCode.Authorization> createUser(@RequestBody NewUserRequest request) {
         try {
-            userService.createUser(request);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (CreateUserException ex) {
-            logger.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+            final Optional<ErrorCode.Authorization> error = userService.createUser(request);
+            return error.map(authorization -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(authorization)).orElseGet(() -> ResponseEntity.status(HttpStatus.OK).build());
+
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorCode.Authorization.CREATE_USER_FAILED);
         }
     }
 }

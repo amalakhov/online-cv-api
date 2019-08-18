@@ -1,8 +1,12 @@
 package com.online.cv.context.security;
 
 import com.online.cv.context.SecurityProperties;
+import com.online.cv.domain.error.ErrorCode;
+import com.online.cv.service.JsonMapperService;
 import com.online.cv.service.OnlineCvUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,13 +25,16 @@ import static org.hibernate.validator.internal.util.StringHelper.isNullOrEmptySt
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final OnlineCvUserDetailsService userDetailsService;
     private final SecurityProperties securityProperties;
+    private final JsonMapperService jsonMapperService;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
                                   SecurityProperties securityProperties,
-                                  OnlineCvUserDetailsService userDetailsService) {
+                                  OnlineCvUserDetailsService userDetailsService,
+                                  JsonMapperService jsonMapperService) {
         super(authenticationManager);
         this.userDetailsService = userDetailsService;
         this.securityProperties = securityProperties;
+        this.jsonMapperService = jsonMapperService;
     }
 
     @Override
@@ -42,10 +49,27 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = getAuthenticationToken(request);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            UsernamePasswordAuthenticationToken authentication = getAuthenticationToken(request);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
+        } catch (ExpiredJwtException tokenExpired) {
+            logger.error(tokenExpired.getMessage(), tokenExpired);
+            final String body = jsonMapperService.toJSON(ErrorCode.Authorization.TOKEN_EXPIRED);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            response.getWriter().write(body);
+            response.getWriter().flush();
+            response.getWriter().close();
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            final String body = jsonMapperService.toJSON(ErrorCode.Authorization.ACCESS_DENIED);
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.getWriter().write(body);
+            response.getWriter().flush();
+            response.getWriter().close();
+        }
     }
 
     private UsernamePasswordAuthenticationToken getAuthenticationToken(HttpServletRequest request) {

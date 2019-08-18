@@ -7,6 +7,7 @@ import com.online.cv.db.tables.pojos.UserRole;
 import com.online.cv.domain.common.NewUserRequest;
 import com.online.cv.domain.common.UserDto;
 import com.online.cv.domain.common.UserStatus;
+import com.online.cv.domain.error.ErrorCode;
 import com.online.cv.domain.exception.CreateUserException;
 import org.jooq.Configuration;
 import org.slf4j.Logger;
@@ -39,14 +40,16 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void createUser(NewUserRequest request) {
+    public Optional<ErrorCode.Authorization> createUser(NewUserRequest request) {
         if (isNull(request)) {
-            throw new RuntimeException("Request body is null");
+            logger.error("Request body is null");
+            return Optional.of(ErrorCode.Authorization.REQUEST_BODY_IS_NULL);
         }
 
         final User user = userDao.fetchOneByEmail(request.getEmail());
         if (!isNull(user)) {
-            throw new CreateUserException("User with the specified email already exists");
+            logger.error("User with the specified email already exists");
+            return Optional.of(ErrorCode.Authorization.USER_ALREADY_EXISTS);
         }
 
         if (!isNullOrEmpty(request.getPassword())
@@ -67,8 +70,11 @@ public class UserService {
 
             userDao.insert(newUser);
             logger.info("createUser::user = {} created", request.getEmail());
+
+            return Optional.empty();
         } else {
-            throw new CreateUserException("Passwords are different");
+            logger.error("Passwords don't match");
+            return Optional.of(ErrorCode.Authorization.PASSWORDS_DONT_MATCH);
         }
     }
 
