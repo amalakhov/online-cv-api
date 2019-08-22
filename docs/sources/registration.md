@@ -13,7 +13,7 @@ This page explains how to create a new User.
 	"confirmPassword": "foo"	// mandatory
 	"firstName": "Alex",		// optional
 	"lastName": "",			// optional
-	"firstName": "", 		// optional
+	"middleName": "", 		// optional
 }
 ```
 - *Response code:* 200 - Ok, 4xx/5xx - Failed
