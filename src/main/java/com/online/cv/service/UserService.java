@@ -89,4 +89,13 @@ public class UserService {
     public Optional<UserDto> resolveUser(Principal principal) {
         return findUserByEmail(principal.getName());
     }
+
+    public boolean updateUserPhoto(UserDto userDto, Integer fileId) {
+        final User user = new User(userDto.getId(), userDto.getLastName(), userDto.getFirstName(), userDto.getMiddleName(),
+                userDto.getEmail(), userDto.getRole().getId(), fileId, userDto.getPasswordHash(), userDto.getStatus().name());
+
+        userDao.update(user);
+
+        return true;
+    }
 }

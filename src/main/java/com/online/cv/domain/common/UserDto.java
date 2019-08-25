@@ -3,6 +3,7 @@ package com.online.cv.domain.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.online.cv.db.tables.pojos.User;
 import com.online.cv.db.tables.pojos.UserRole;
+import com.online.cv.domain.upload.UploadedFile;
 
 public class UserDto {
     private Integer id;

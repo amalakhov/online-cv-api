@@ -6,7 +6,8 @@ public class ErrorCode {
 
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public static enum Common {
-        COMMON_ERROR(0, "Something went wrong");
+        COMMON_ERROR(0, "Something went wrong"),
+        USER_NOT_FOUND(1, "User not found");
 
         private Integer code;
         private String description;
@@ -40,6 +41,28 @@ public class ErrorCode {
         private String description;
 
         Authorization(Integer code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    public static enum FileUpload {
+        USER_NOT_FOUND(200, "Can't resolve authorized user"),
+        UPLOAD_ERROR(201, "Upload failed");
+
+        private Integer code;
+        private String description;
+
+        FileUpload(Integer code, String description) {
             this.code = code;
             this.description = description;
         }
