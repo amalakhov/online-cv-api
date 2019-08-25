@@ -51,6 +51,18 @@ public class UserResource {
         }
     }
 
+    @GetMapping(path = "/user/profile")
+    public ResponseEntity getUserProfile(Principal principal) {
+        try {
+            final Optional<UserDto> optionalUser = userService.resolveUser(principal);
+            final UserDto userDto = optionalUser.orElseThrow(() -> new RuntimeException("Can't resolve authorized user"));
+            return ResponseEntity.ok(userDto);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            return ResponseEntity.badRequest().body(USER_NOT_FOUND);
+        }
+    }
+
     @PostMapping(path = "/user/registration")
     public ResponseEntity<ErrorCode.Authorization> createUser(@RequestBody NewUserRequest request) {
         try {

@@ -2,13 +2,14 @@ package com.online.cv.service;
 
 import com.online.cv.db.tables.daos.UserDao;
 import com.online.cv.db.tables.daos.UserRoleDao;
+import com.online.cv.db.tables.pojos.Files;
 import com.online.cv.db.tables.pojos.User;
 import com.online.cv.db.tables.pojos.UserRole;
 import com.online.cv.domain.common.NewUserRequest;
 import com.online.cv.domain.common.UserDto;
 import com.online.cv.domain.common.UserStatus;
 import com.online.cv.domain.error.ErrorCode;
-import com.online.cv.domain.exception.CreateUserException;
+import com.online.cv.domain.upload.UploadedFile;
 import org.jooq.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,19 @@ public class UserService {
 
     private final UserDao userDao;
     private final UserRoleDao roleDao;
+    private final FileStorageService storageService;
+    private final FileDtoConverter fileDtoConverter;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(Configuration configuration,
+                       FileStorageService storageService,
+                       FileDtoConverter fileDtoConverter,
                        BCryptPasswordEncoder passwordEncoder) {
         this.userDao = new UserDao(configuration);
         this.roleDao = new UserRoleDao(configuration);
+        this.storageService = storageService;
+        this.fileDtoConverter = fileDtoConverter;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -82,7 +89,10 @@ public class UserService {
         final User user = userDao.fetchOneByEmail(email);
         final UserRole role = roleDao.fetchOneById(user.getRoleId());
 
-        return Optional.of(UserDto.instance(user, role, null));
+        final Files file = storageService.findById(user.getPhotoId());
+        final UploadedFile uploadedFile = fileDtoConverter.convertImg(file);
+
+        return Optional.of(UserDto.instance(user, role, uploadedFile));
 
     }
 
