@@ -9,3 +9,8 @@ API based on Spring Boot (2.0.5.RELEASE).
   - [Registration](docs/sources/registration.md)
   - [Login](docs/sources/login.md)
 
+- User
+  - [Profile](docs/sources/profile.md)
+
+- File
+  - [Upload](docs/sources/file-upload.md)
