@@ -76,7 +76,7 @@ public class UserResource {
         }
     }
 
-    @PostMapping(path = "/user/photo/update/")
+    @PostMapping(path = "/user/photo/update")
     public ResponseEntity updateUserPhoto(@RequestBody UpdateUserPhotoRequest request,
                                           Principal principal) {
         try {
