@@ -14,3 +14,6 @@ API based on Spring Boot (2.0.5.RELEASE).
 
 - File
   - [Upload](docs/sources/file-upload.md)
+  
+- [Company](docs/sources/company.md)
+- [Skill](docs/sources/skill.md)
